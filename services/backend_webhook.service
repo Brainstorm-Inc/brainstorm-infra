@@ -1,0 +1,13 @@
+[Unit]
+Description=Backend Github webhook
+After=network.target
+
+[Service]
+Environment=NODE_PORT=5000
+Type=simple
+User=pi
+ExecStart=/usr/bin/nodejs /home/pi/infra/be_webhook.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
