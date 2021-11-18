@@ -1,38 +1,47 @@
-#!/usr/bin/env node
-
 const http = require('http')
 const crypto = require('crypto')
 const exec = require('child_process').exec
 
-const beSecret = process.env.BE_WEBHOOK_SECRET
-const beRepo = process.env.BE_REPO_PATH
+function genSig(data) {
+  const {secret, chunk} = data
+  const hmac = crypto.createHmac('sha1', secret)
+      .update(chunk.toString())
+      .digest('hex')
 
-const feSecret = process.env.FE_WEBHOOK_SECRET
-const feRepo = process.env.FE_REPO_PATH
+    return `sha1=${hmac}`
+}
 
-function handleWebhook(secret, repo) {
-	return (req, res) => {
-	req.on('data', (chunk) => {
+function getData(repo, chunk) {
+  const data = {
+    secret: process.env[`${repo}_WEBHOOK_SECRET`],
+    chunk: chunk
+  }
 
-    		const hmac = crypto.createHmac('sha1', secret)
-      			.update(chunk.toString())
-      			.digest('hex')
+  return {
+    sig: genSig(data),
+    repo: process.env[`${repo}_REPO_PATH`]
+  }
+}
 
-    		const sig = `sha1=${hmac}`
+const updateRepo = (repo) => exec(`cd ${repo} && git pull`)
 
-    		if (req.headers['x-hub-signature'] === sig) {
-			console.log("connected");
-      			// exec(`cd ${repo} && git pull`)
-      			//exec('"$(pwd)"/build_backend_docker.sh')
-    		}
-  	})
+function handleWebhook(req, res) {
+  req.on('data', (chunk) => {
+    let repoName;
+    if (req.url === '/fe') {
+      repoName = 'FE'
+    } else if (req.url === '/be') {
+      repoName = 'BE'
+    }
 
-  	res.end()
-	}
-		
-	}
-  
-http.createServer(handleWebhook(beSecret,beRepo)).listen(5000)
-http.createServer(handleWebhook(feSecret,feRepo)).listen(5001)
+    const {sig, repo} = getData(repoName, chunk)
 
+    if (req.headers['x-hub-signature'] === sig) {
+      updateRepo(repo)
+    }
+  })
 
+  res.end()
+}
+
+http.createServer(handleWebhook).listen(5000)
