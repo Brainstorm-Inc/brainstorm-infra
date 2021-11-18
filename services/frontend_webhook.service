@@ -6,7 +6,7 @@ After=network.target
 Environment=NODE_PORT=5001
 Type=simple
 User=pi
-ExecStart=/usr/bin/nodejs /home/pi/infra/fe_webhook.js
+ExecStart=/usr/bin/nodejs /home/pi/infra/scripts/fe_webhook.js
 Restart=on-failure
 
 [Install]

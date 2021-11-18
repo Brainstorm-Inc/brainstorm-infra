@@ -6,8 +6,6 @@ const exec = require('child_process').exec
 
 const secret = process.env.BE_WEBHOOK_SECRET
 const repo = process.env.BE_REPO_PATH
-console.log(secret)
-console.log(repo)
 
 function handleWebhook(req, res) {
   req.on('data', (chunk) => {
@@ -19,8 +17,8 @@ function handleWebhook(req, res) {
     const sig = `sha1=${hmac}`
 
     if (req.headers['x-hub-signature'] === sig) {
-      console.log("request arrived")
       exec(`cd ${repo} && git pull`)
+      exec('"$(pwd)"/build_backend_docker.sh')
     }
   })
 
