@@ -1,0 +1,11 @@
+services:
+  fe:
+    build: "${FE_REPO_PATH}"
+    ports:
+      - "80:80"
+    links:
+      - be
+  be:
+    build: "${BE_REPO_PATH}/Brainstorm"
+    ports:
+      - "5000:5000"
