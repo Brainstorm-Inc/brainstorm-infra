@@ -1,3 +1,5 @@
+version: "2.1"
+
 services:
   fe:
     build: "${FE_REPO_PATH}"
@@ -6,6 +8,9 @@ services:
     links:
       - be
   be:
-    build: "${BE_REPO_PATH}/Brainstorm"
+    build:
+      context: "${BE_REPO_PATH}/Brainstorm"
+      dockerfile: "${BE_REPO_PATH}/Brainstorm/Brainstorm.API/Dockerfile"
     ports:
       - "5000:5000"
+
