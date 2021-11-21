@@ -12,5 +12,4 @@ services:
       context: "${BE_REPO_PATH}/Brainstorm"
       dockerfile: "${BE_REPO_PATH}/Brainstorm/Brainstorm.API/Dockerfile"
     ports:
-      - "5000:5000"
-
+      - "81:5000"
